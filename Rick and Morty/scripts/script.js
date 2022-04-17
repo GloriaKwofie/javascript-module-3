@@ -1,13 +1,36 @@
+function renderCharacter(name, status, species, image) {
+    const cardCharacterElement = document.createElement('div')
+    cardCharacterElement.className = 'character-card'
+    mainAreaElement.appendChild(cardCharacterElement)
+
+    //image source
+    const characterImageElement = document.createElement('img')
+    characterImageElement.src = image;
+
+    //name
+    const characterNameElement = document.createElement('div')
+    characterNameElement.innerText = name;
+
+    //species and status
+    const characterSpeciesStatusElement = document.createElement('div')
+    characterSpeciesStatusElement.innerText = `${species} | ${status}`
+
+    cardCharacterElement.appendChild(characterImageElement)
+    cardCharacterElement.appendChild(characterNameElement)
+    cardCharacterElement.appendChild(characterSpeciesStatusElement)
+
+}
 
 
-
-async function renderCharacters(characterURLs) {
-    console.log(characterURLs);
+async function fetchCharacters(characterURLs) {
     const characterFetchPromises = characterURLs.map(characterURL => fetch(characterURL))
     const resolvedFetchResponses = await Promise.all(characterFetchPromises)
     const jsonPromises = resolvedFetchResponses.map(resolvedFetchResponse => resolvedFetchResponse.json())
     const resolvedJsonPromises = await Promise.all(jsonPromises)
     console.log(resolvedJsonPromises);
+    resolvedFetchResponses.forEach(characterJson => renderCharacter(
+        characterJson.name, characterJson.status, characterJson.species, characterJson.image
+    ))
 
 }
 
