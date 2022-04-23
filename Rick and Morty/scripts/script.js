@@ -65,25 +65,28 @@ function renderListOfEpisodes(episodes, nextUrl) {
         })
     })
     
+
+    function renderNextEpisodeButton(nextURLs) {
+        if (!nextUrl) {
+            return
+        }
+        
+        const nextButton = document.createElement('button')
+        nextButton.className = 'next-list-button'
+        nextButton.innerText = 'Next episodes'
+        nextButton.addEventListener('click', _event => {
+            console.log(nextUrl);
+            fetch(nextUrl)
+            .then(response => response.json())
+            .then(json => {
+                renderListOfEpisodes(json.results, json.info.next)
+            })
+        })
+        sidebarElement.appendChild(nextButton)
+    }
 }
 
-function renderNextEpisodeButton(nextURLs) {
-    if (!nextUrl) {
-        return
-    }
-    
-    const nextButton = document.createElement('button')
-    nextButton.className = 'next-list-button'
-    nextButton.innerText = 'Next episodes'
-    nextButton.addEventListener('click', _event => {
-        console.log(nextUrl);
-        fetch(nextUrl)
-        .then(response => response.json())
-        .then(json => {
-            renderListOfEpisodes(json.results, json.info.next)
-        })
-    })
-}
+
 
 function sidebar() {
     const sidebarElement = document.createElement('div')
@@ -97,8 +100,33 @@ function sidebar() {
             titleElement.innerText = `Episode ${episode.id}`
             sidebarElement.appendChild(titleElement)
             titleElement.addEventListener('click', _event => {
-            })
-            
+                updateMainArea(episode.name, episode.air_date, episode.episode, episode.characters)
+            })  
         });
+        const firstEpisode = json.results[0]
+        updateMainArea(firstEpisode.name, firstEpisode.air_date, firstEpisode.episode, firstEpisode.characters)
     })
+    .catch(
+        errorMessage => console.log(errorMessage)
+    )
+
+    const nextButton =document.createElement('button')
+    nextButton.innerText = 'Next episodes'
+    nextButton.addEventListener('click', _event => {
+        console.log('next');
+    })
+    sidebarElement.appendChild(nextButton)  
 }
+
+function mainArea() {
+    mainAreaElement = document.createElement('div')
+    mainAreaElement.id = 'main-area'
+    characterCardsElement.id = 'character-cards'
+    mainAreaElement.appendChild(character-cards)
+    document.querySelector('#root').appendChild(mainAreaElement)
+
+    
+}
+
+sidebar()
+mainArea()
