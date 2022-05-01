@@ -17,7 +17,7 @@
 
 // Finish the code of the function
 function exercise12(array, entry) {
-    return Array.includes(entry)
+    return array.includes(entry)
 }
 
 // Don’t change the code bellow this line
