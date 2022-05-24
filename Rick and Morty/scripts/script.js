@@ -1,4 +1,16 @@
+let sidebarElement
 let mainAreaElement;
+let characterCardsElement
+
+
+function locationOfCharacter(name, type, dimension) {
+    characterLocation = document.querySelector('.character-card')
+    characterLocation.addEventListener('click', _event => {
+        console.log('this is my character location');
+    })
+    mainAreaElement.appendChild(characterLocation)
+    
+}
 
 function renderCharacter(name, status, species, image) {
     const cardCharacterElement = document.createElement('div')
@@ -27,16 +39,19 @@ function renderCharacter(name, status, species, image) {
 async function fetchCharacters(characterURLs) {
     const characterFetchPromises = characterURLs.map(characterURL => fetch(characterURL))
     const resolvedFetchResponses = await Promise.all(characterFetchPromises)
-    const jsonPromises = resolvedFetchResponses.map(resolvedFetchResponse => resolvedFetchResponse.json())
+    const jsonPromises = resolvedFetchResponses.map(resolvedFetchResponses => resolvedFetchResponses.json())
     const resolvedJsonPromises = await Promise.all(jsonPromises)
     console.log(resolvedJsonPromises);
-    resolvedFetchResponses.forEach(characterJson => renderCharacter(
+    
+    resolvedJsonPromises.forEach(characterJson => renderCharacter(
         characterJson.name, characterJson.status, characterJson.species, characterJson.image
+    
     ))
-
 }
 
+
 function updateMainArea(name, date, episodeCode, characterURLs) {
+    mainAreaElement = document.querySelector('#main-area')
     mainAreaElement.innerHTML = ''
     characterCardsElement.innerHTML = ''
 
@@ -50,11 +65,31 @@ function updateMainArea(name, date, episodeCode, characterURLs) {
     mainAreaElement.appendChild(characterCardsElement)
 
     fetchCharacters(characterURLs) 
+    characterLocation()
 }
 
-function renderListOfEpisodes(episodes, nextUrl) {
-    document.querySelectorAll('.next-list-button')
-    buttonElement => sidebarElement.removeChild(buttonElement)
+function renderNextEpisodeButton(nextUrl) {
+    if (!nextUrl) {
+        return
+    }
+    
+    const nextButton = document.createElement('button')
+    nextButton.className = 'next-list-button'
+    nextButton.innerText = 'Next Episodes'
+    nextButton.addEventListener('click', _event => {
+        console.log(nextUrl);
+        fetch(nextUrl)
+        .then(response => response.json())
+        .then(json => {
+            renderListOfEpisodes(json.results, json.info.next)
+        })
+    })
+    sidebarElement.appendChild(nextButton)
+}
+
+function renderListOfEpisodes(episodes,nextUrl) {
+    document.querySelectorAll('.next-list-button').forEach(
+    buttonElement => sidebarElement.removeChild(buttonElement))
 
     episodes.forEach(episode => {
         const titleElement = document.createElement('p')
@@ -64,65 +99,38 @@ function renderListOfEpisodes(episodes, nextUrl) {
             updateMainArea(episode.name, episode.air_date, episode.episode, episode.characters)
         })
     })
+    renderNextEpisodeButton(nextUrl)
     
 
-    function renderNextEpisodeButton(nextURLs) {
-        if (!nextUrl) {
-            return
-        }
-        
-        const nextButton = document.createElement('button')
-        nextButton.className = 'next-list-button'
-        nextButton.innerText = 'Next episodes'
-        nextButton.addEventListener('click', _event => {
-            console.log(nextUrl);
-            fetch(nextUrl)
-            .then(response => response.json())
-            .then(json => {
-                renderListOfEpisodes(json.results, json.info.next)
-            })
-        })
-        sidebarElement.appendChild(nextButton)
-    }
+   
 }
 
 
 
 function sidebar() {
-    const sidebarElement = document.createElement('div')
-    sidebarElement.id = 'sidebar'
+    sidebarElement = document.createElement('div')
+    sidebarElement.id = 'sidenav'
     document.querySelector('#root').appendChild(sidebarElement)
     fetch('https://rickandmortyapi.com/api/episode')
-    .then(result => result.json())
+    .then(result =>{
+        return result.json()})
     .then(json => {
-        json.results.forEach(episode => {
-            const titleElement = document.createElement('p')
-            titleElement.innerText = `Episode ${episode.id}`
-            sidebarElement.appendChild(titleElement)
-            titleElement.addEventListener('click', _event => {
-                updateMainArea(episode.name, episode.air_date, episode.episode, episode.characters)
-            })  
-        });
+       renderListOfEpisodes(json.results, json.info.next)
         const firstEpisode = json.results[0]
         updateMainArea(firstEpisode.name, firstEpisode.air_date, firstEpisode.episode, firstEpisode.characters)
     })
-    .catch(
+   /* .catch(
         errorMessage => console.log(errorMessage)
-    )
-
-    const nextButton =document.createElement('button')
-    nextButton.innerText = 'Next episodes'
-    nextButton.addEventListener('click', _event => {
-        console.log('next');
-    })
-    sidebarElement.appendChild(nextButton)  
+    )*/
+ 
 }
 
 function mainArea() {
-    mainAreaElement = document.createElement('div')
+  mainAreaElement = document.createElement('div')
     mainAreaElement.id = 'main-area'
+    characterCardsElement = document.createElement('div')
     characterCardsElement.id = 'character-cards'
-    mainAreaElement.appendChild(character-cards)
+    mainAreaElement.appendChild(characterCardsElement)
     document.querySelector('#root').appendChild(mainAreaElement)
 
     
@@ -130,3 +138,5 @@ function mainArea() {
 
 sidebar()
 mainArea()
+
+
